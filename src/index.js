@@ -1,19 +1,10 @@
 import "./style.css";
 import printMe from "./print.js";
+import { html, render } from "lit-html";
 
-function component() {
-  const element = document.createElement("div");
-  const btn = document.createElement("button");
+const myTemplate = (name) => html`
+  <div class="hello">Hello 3 ${name}</div>
+  <button @click=${printMe}>Click me and check the console!</button>
+`;
 
-  element.innerHTML = "Hello";
-  element.classList.add("hello");
-
-  btn.innerHTML = "Click me and check the console!";
-  btn.onclick = printMe;
-
-  element.appendChild(btn);
-
-  return element;
-}
-
-document.body.appendChild(component());
+render(myTemplate("Alvin"), document.body);
