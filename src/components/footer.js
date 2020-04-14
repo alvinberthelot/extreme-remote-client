@@ -3,8 +3,14 @@ import { html } from "lit-html"
 export default function footerComponent() {
   return html`
     <footer class="mt-2 mb-4">
-      <div>
-        Footer
+      <div class="text-right text-sm text-gray-500">
+        Made by Alvin Berthelot,
+        <a
+          href="https://github.com/alvinberthelot/extreme-game-dev"
+          target="_blank"
+          class="underline text-gray-600"
+          >repository on GitHub</a
+        >
       </div>
     </footer>
   `

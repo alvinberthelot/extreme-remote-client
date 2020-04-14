@@ -3,12 +3,31 @@ import { html, render } from "lit-html"
 import { timer, combineLatest } from "rxjs"
 import { take, map, scan } from "rxjs/operators"
 import * as moment from "moment"
+import { sortBy, random } from "lodash"
 import appComponent from "./components/app"
+import colors from "./tools/colors"
+
+const TEAM_COLORS = colors()
+const TEAM_COLORS_NAME = Object.keys(TEAM_COLORS)
 
 const SECOND = 1000
 
-const DURATION = 8 * SECOND
+const DURATION = 6 * SECOND
+const FREQUENCY_METRONOME = 1 * SECOND
 const START_GAME_AFTER = 2 * SECOND
+
+const NUM_TEAM = 2
+let teams = {}
+for (let index = 0; index < NUM_TEAM; index++) {
+  teams[`teamid${index + 1}`] = {
+    name: `teamid${index + 1}`,
+    // name: Math.random()
+    //   .toString(36)
+    //   .replace(/[^a-z]+/g, "")
+    //   .substr(0, 7),
+    color: TEAM_COLORS[TEAM_COLORS_NAME[random(TEAM_COLORS_NAME.length - 1)]],
+  }
+}
 
 const game$ = timer(START_GAME_AFTER).pipe(
   map(() => {
@@ -19,10 +38,7 @@ const game$ = timer(START_GAME_AFTER).pipe(
       counter: 666,
       dateStart: start,
       dateEnd: end,
-      teams: {
-        teamid1: "xtrem git",
-        teamid2: "tutu git",
-      },
+      teams,
       isStarted: true,
       isPaused: false,
     }
@@ -30,7 +46,6 @@ const game$ = timer(START_GAME_AFTER).pipe(
   })
 )
 
-const FREQUENCY_METRONOME = SECOND
 const NUM_STEP = DURATION / FREQUENCY_METRONOME
 const metronome$ = combineLatest([game$, timer(0, FREQUENCY_METRONOME)]).pipe(
   take(NUM_STEP + 1),
@@ -43,6 +58,17 @@ const metronome$ = combineLatest([game$, timer(0, FREQUENCY_METRONOME)]).pipe(
 
 const steps$ = metronome$.pipe(
   map((date, index) => {
+    const scores = Object.keys(teams).map((id) => ({
+      id,
+      score: index ? random(100) : 0,
+    }))
+
+    const scoresSorted = sortBy(scores, [
+      function (v) {
+        return v.score
+      },
+    ])
+
     return {
       id: Math.random()
         .toString(36)
@@ -50,18 +76,7 @@ const steps$ = metronome$.pipe(
         .substr(0, 7),
       index,
       date,
-      teams: [
-        {
-          id: "teamid1",
-          score: index ? Math.floor(Math.random() * Math.floor(100)) : 0,
-          rank: 1,
-        },
-        {
-          id: "teamid2",
-          score: index ? Math.floor(Math.random() * Math.floor(100)) : 0,
-          rank: 2,
-        },
-      ],
+      teams: scoresSorted.map((v, index) => ({ ...v, rank: index })),
     }
   }),
   scan((all, current) => [...all, current], [])
