@@ -22,10 +22,11 @@ for (let index = 0; index < NUM_TEAM; index++) {
   const indexColor = (index + 1) % TEAM_COLORS_NAME.length
 
   teams[`teamid${index + 1}`] = {
-    name: Math.random()
-      .toString(36)
-      .replace(/[^a-z]+/g, "")
-      .substr(0, 7),
+    name: `teamid${index + 1}`,
+    // name: Math.random()
+    //   .toString(36)
+    //   .replace(/[^a-z]+/g, "")
+    //   .substr(0, 7),
     color: TEAM_COLORS[TEAM_COLORS_NAME[indexColor]],
   }
 }
@@ -36,6 +37,7 @@ const game$ = timer(START_GAME_AFTER).pipe(
     const end = moment(start).add(DURATION)
     const game = {
       id: "gameid87987",
+      yourTeam: "teamid2",
       counter: 666,
       dateStart: start,
       dateEnd: end,

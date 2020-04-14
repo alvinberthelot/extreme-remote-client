@@ -1,8 +1,7 @@
 import { html } from "lit-html"
 import rankingComponent from "./ranking.component"
 
-export default function rankingListComponent(steps) {
-  const lastStep = steps[steps.length - 1]
+export default function rankingListComponent(lastStep) {
   const teams = lastStep.teams
 
   return html`
@@ -10,7 +9,7 @@ export default function rankingListComponent(steps) {
       Ranking
     </div>
     <ul>
-      ${teams.map((team) => html`${rankingComponent(team, steps)}`)}
+      ${teams.map((team) => html`${rankingComponent(team)}`)}
     </ul>
   `
 }

@@ -36,7 +36,12 @@ export default function rankingComponent(team) {
         class="text-right text-gray-900 pr-2 py-1"
         style=${styleMap(bgStyle)}
       >
-        ${team.score}
+        <span
+          style=${styleMap({
+            ...colorStyle,
+          })}
+          >$ </span
+        >${team.score}
       </div>
     </div>
   `
