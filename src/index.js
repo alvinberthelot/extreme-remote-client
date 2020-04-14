@@ -12,20 +12,21 @@ const TEAM_COLORS_NAME = Object.keys(TEAM_COLORS)
 
 const SECOND = 1000
 
-const DURATION = 6 * SECOND
-const FREQUENCY_METRONOME = 1 * SECOND
+const DURATION = 12 * SECOND
+const FREQUENCY_METRONOME = 2 * SECOND
 const START_GAME_AFTER = 2 * SECOND
 
-const NUM_TEAM = 2
+const NUM_TEAM = 6
 let teams = {}
 for (let index = 0; index < NUM_TEAM; index++) {
+  const indexColor = (index + 1) % TEAM_COLORS_NAME.length
+
   teams[`teamid${index + 1}`] = {
-    name: `teamid${index + 1}`,
-    // name: Math.random()
-    //   .toString(36)
-    //   .replace(/[^a-z]+/g, "")
-    //   .substr(0, 7),
-    color: TEAM_COLORS[TEAM_COLORS_NAME[random(TEAM_COLORS_NAME.length - 1)]],
+    name: Math.random()
+      .toString(36)
+      .replace(/[^a-z]+/g, "")
+      .substr(0, 7),
+    color: TEAM_COLORS[TEAM_COLORS_NAME[indexColor]],
   }
 }
 
@@ -67,7 +68,7 @@ const steps$ = metronome$.pipe(
       function (v) {
         return v.score
       },
-    ])
+    ]).reverse()
 
     return {
       id: Math.random()
@@ -76,7 +77,10 @@ const steps$ = metronome$.pipe(
         .substr(0, 7),
       index,
       date,
-      teams: scoresSorted.map((v, index) => ({ ...v, rank: index })),
+      teams: scoresSorted.map((v, index) => {
+        const team = teams[v.id]
+        return { ...v, ...team, rank: index }
+      }),
     }
   }),
   scan((all, current) => [...all, current], [])

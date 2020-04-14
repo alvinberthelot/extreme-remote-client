@@ -5,7 +5,7 @@ import printMe from "../../tools/print"
 export default function headerComponent(game) {
   return html`
     <div class="flex mb-4">
-      <div class="w-1/4 px-2 py-4">
+      <div class="w-1/4 py-4">
         <div
           class="text-base text-gray-400 font-bold uppercase pt-4"
           @click=${printMe}
@@ -19,7 +19,7 @@ export default function headerComponent(game) {
             Score
           </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700">$ </span>328
+            <span class="text-gray-700 mr-1">$</span>328
           </div>
         </div>
         <div class="w-1/2 text-right">
@@ -27,11 +27,11 @@ export default function headerComponent(game) {
             Rank
           </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700"># </span>13
+            <span class="text-gray-700 mr-1">#</span>13
           </div>
         </div>
       </div>
-      <div class="w-1/4 px-2 py-4">
+      <div class="w-1/4 py-4">
         <div
           class="text-right text-base text-gray-400 font-bold uppercase pt-4"
           @click=${printMe}

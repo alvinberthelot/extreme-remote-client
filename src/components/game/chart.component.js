@@ -44,20 +44,19 @@ export default function chartComponent(game, steps) {
             display: false,
           },
           scales: {
-            x: {
-              display: true,
-              scaleLabel: {
-                display: true,
-                labelString: "Step",
+            xAxes: [
+              {
+                ticks: { display: false },
               },
-            },
-            y: {
-              display: true,
-              scaleLabel: {
-                display: true,
-                labelString: "$",
+            ],
+            yAxes: [
+              // {
+              //   display: false,
+              // },
+              {
+                ticks: { display: false },
               },
-            },
+            ],
           },
         },
       }
@@ -66,5 +65,8 @@ export default function chartComponent(game, steps) {
     }
   }
 
-  return html`<canvas id="canvasChart" width="400" height="300"></canvas>`
+  return html` <div class="font-bold text-xl text-gray-400 py-2 uppercase">
+      Evolution
+    </div>
+    <canvas id="canvasChart" width="400" height="300"></canvas>`
 }
