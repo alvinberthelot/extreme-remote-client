@@ -26,18 +26,22 @@ export default function headerComponent(game, lastStep) {
             Score
           </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700 mr-1">$</span>${lastStepTeam.score}
+            <span class="text-gray-700 mr-1">$</span>${lastStepTeam
+              ? lastStepTeam.score
+              : 0}
           </div>
         </div>
         <div class="w-1/2 text-center text-gray-100 font-bold pt-4">
-          ${lastStepTeam.name}
+          ${lastStepTeam ? lastStepTeam.name : ""}
         </div>
         <div class="w-1/4 text-right">
           <div class="text-base text-gray-700 font-bold uppercase pt-4">
             Rank
           </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700 mr-1">#</span>${lastStepTeam.rank}
+            <span class="text-gray-700 mr-1">#</span>${lastStepTeam
+              ? lastStepTeam.rank
+              : "?"}
           </div>
         </div>
       </div>
@@ -46,11 +50,13 @@ export default function headerComponent(game, lastStep) {
           class="text-right text-base text-gray-400 font-bold uppercase pt-4"
           @click=${printMe}
         >
-          ${game.dateStart.format("LTS")}
+          ${game.dateStart ? game.dateStart.format("LTS") : ""}
         </div>
 
         <div class="text-right text-4xl text-gray-900 font-bold">
-          ${moment.utc(game.dateEnd.diff(moment())).format("mm:ss")}
+          ${game.dateFinish
+            ? moment.utc(game.dateFinish.diff(moment())).format("mm:ss")
+            : ""}
         </div>
       </div>
     </div>

@@ -13,9 +13,12 @@ export default function chartComponent(game, steps) {
       const lastStep = steps[steps.length - 1]
       chart.data.labels.push(lastStep.index)
       chart.data.datasets.forEach((dataset) => {
-        dataset.data.push(
-          lastStep.teams.filter((team) => team.id === dataset.label)[0].score
-        )
+        const team = lastStep.teams.filter(
+          (team) => team.name === dataset.label
+        )[0]
+        if (team) {
+          dataset.data.push(team.score)
+        }
       })
       chart.update()
     } else {
