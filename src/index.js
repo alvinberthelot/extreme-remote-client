@@ -9,7 +9,7 @@ import appComponent from "./components/app"
 
 const SERVER = "https://www.xtreme-game.dev"
 // const SERVER = "http://localhost:8080"
-const GAME_ID = "08c00ha"
+const GAME_ID = "0aa5ltv"
 // const TEAM_ID = "0rh30t7"
 
 const SECOND = 1000
