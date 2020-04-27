@@ -1,16 +1,31 @@
 import "./style.css"
 import { html, render } from "lit-html"
-import { timer, combineLatest, of, throwError } from "rxjs"
+import { timer, combineLatest } from "rxjs"
 import { fromFetch } from "rxjs/fetch"
-import { map, tap, scan, flatMap, switchMap, catchError } from "rxjs/operators"
+import { map, tap, scan, flatMap, switchMap, filter } from "rxjs/operators"
 import * as moment from "moment"
 import { sortBy, random } from "lodash"
 import appComponent from "./components/app"
 
 const SECOND = 1000
 
-const gameId$ = of(process.env.GAME_ID)
 const metronome$ = timer(0, 10 * SECOND)
+
+const gameId$ = fromFetch(`${process.env.SERVER}/game`).pipe(
+  flatMap((response) => response.json()),
+  map((games) => {
+    let gameId = null
+    if (games.length === 1) {
+      gameId = games[0]
+    } else if (process.env.GAME_ID) {
+      gameId = process.env.GAME_ID
+    } else {
+      console.error("We can't determinate gameId !")
+    }
+    return gameId
+  }),
+  filter((val) => val)
+)
 
 const register$ = gameId$.pipe(
   switchMap((id) => fromFetch(`${process.env.SERVER}/game/${id}/register`)),
