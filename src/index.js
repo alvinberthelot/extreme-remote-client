@@ -7,18 +7,13 @@ import * as moment from "moment"
 import { sortBy, random } from "lodash"
 import appComponent from "./components/app"
 
-const SERVER = "https://www.xtreme-game.dev"
-// const SERVER = "http://localhost:8080"
-const GAME_ID = "0aa5ltv"
-// const TEAM_ID = "0rh30t7"
-
 const SECOND = 1000
 
-const gameId$ = of(GAME_ID)
+const gameId$ = of(process.env.GAME_ID)
 const metronome$ = timer(0, 10 * SECOND)
 
 const register$ = gameId$.pipe(
-  switchMap((id) => fromFetch(`${SERVER}/game/${id}/register`)),
+  switchMap((id) => fromFetch(`${process.env.SERVER}/game/${id}/register`)),
   flatMap((response) => response.json()),
   tap((data) => {
     if (data.error) {
@@ -36,7 +31,7 @@ register$.subscribe(
 )
 
 const game$ = combineLatest([gameId$, metronome$]).pipe(
-  switchMap(([id]) => fromFetch(`${SERVER}/game/${id}`)),
+  switchMap(([id]) => fromFetch(`${process.env.SERVER}/game/${id}`)),
   flatMap((response) => response.json())
 )
 
