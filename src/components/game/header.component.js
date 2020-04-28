@@ -4,7 +4,7 @@ import printMe from "../../tools/print"
 
 export default function headerComponent(game, lastStep) {
   const lastStepTeam = lastStep.teams.filter(
-    (team) => team.id === game.yourTeam
+    (team) => team.id === game.teamId
   )[0]
 
   return html`
@@ -54,8 +54,8 @@ export default function headerComponent(game, lastStep) {
         </div>
 
         <div class="text-right text-4xl text-gray-900 font-bold">
-          ${game.dateFinish
-            ? moment.utc(game.dateFinish.diff(moment())).format("mm:ss")
+          ${game.dateStop
+            ? moment.utc(game.dateStop.diff(moment())).format("mm:ss")
             : ""}
         </div>
       </div>

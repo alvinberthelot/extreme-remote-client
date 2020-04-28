@@ -2,7 +2,15 @@ import "./style.css"
 import { html, render } from "lit-html"
 import { timer, combineLatest } from "rxjs"
 import { fromFetch } from "rxjs/fetch"
-import { map, tap, scan, flatMap, switchMap, filter } from "rxjs/operators"
+import {
+  map,
+  tap,
+  scan,
+  flatMap,
+  switchMap,
+  filter,
+  takeWhile,
+} from "rxjs/operators"
 import * as moment from "moment"
 import { sortBy, random } from "lodash"
 import appComponent from "./components/app"
@@ -20,7 +28,7 @@ const gameId$ = fromFetch(`${process.env.SERVER}/game`).pipe(
     } else if (process.env.GAME_ID) {
       gameId = process.env.GAME_ID
     } else {
-      console.error("We can't determinate gameId !")
+      console.error("We can't determinate your game !")
     }
     return gameId
   }),
@@ -47,27 +55,20 @@ register$.subscribe(
 
 const game$ = combineLatest([gameId$, metronome$]).pipe(
   switchMap(([id]) => fromFetch(`${process.env.SERVER}/game/${id}`)),
-  flatMap((response) => response.json())
+  flatMap((response) => response.json()),
+  map((game, index) => ({
+    ...game,
+    dateStart: game.dateStart ? moment(game.dateStart) : null,
+    datePause: game.datePause ? moment(game.datePause) : null,
+    dateStop: game.dateStop ? moment(game.dateStop) : null,
+    teamId: process.env.TEAM_ID,
+  })),
+  takeWhile((game) => game.isStopped === false, true),
+  tap((game) => {
+    console.log("Game", game.isStarted, game.isStopped)
+  }),
+  filter((game) => game.isStarted === true)
 )
-
-// const game$ = timer(START_GAME_AFTER).pipe(
-//   map(() => {
-//     const start = moment()
-//     const end = moment(start).add(DURATION)
-//     const game = {
-//       id: "gameid87987",
-//       yourTeam: "teamid2",
-//       counter: 666,
-//       // dateStart: start,
-//       dateStart: null,
-//       dateEnd: end,
-//       teams,
-//       isStarted: true,
-//       isPaused: false,
-//     }
-//     return game
-//   })
-// )
 
 const states$ = game$.pipe(
   map((game, index) => {
