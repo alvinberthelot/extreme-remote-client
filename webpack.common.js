@@ -2,6 +2,8 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const { CleanWebpackPlugin } = require("clean-webpack-plugin")
 
+const app = require("./app.config")
+
 module.exports = {
   entry: {
     app: "./src/index.js",
@@ -14,7 +16,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "Xtrem Game Dev",
+      title: app.name,
     }),
   ],
   output: {
