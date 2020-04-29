@@ -1,0 +1,4 @@
+{
+  "tags": ["games"],
+  "permalink": "{{ id | slug }}.html"
+}

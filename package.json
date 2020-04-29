@@ -4,9 +4,16 @@
   "description": "",
   "homepage": "https://www.xtreme-game.dev",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --open --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "start": "npm run watch",
+    "watch": "npm-run-all --parallel watch:html watch:css",
+    "watch:html": "cross-env ELEVENTY_ENV=dev eleventy --serve --input=./src --output=./dist",
+    "watch:js": "webpack --config webpack.dev.js",
+    "watch:css": "postcss ./src/styles/tailwind.css -o ./dist/index.css --watch",
+    "build": "npm-run-all clean build:html build:css",
+    "build:html": "cross-env ELEVENTY_ENV=prod eleventy --input=./src --output=./dist",
+    "build:js": "webpack --config webpack.prod.js",
+    "build:css": "postcss ./src/styles/tailwind.css -o ./dist/index.css",
+    "clean": "rm -rf dist"
   },
   "repository": {
     "type": "git",
@@ -27,19 +34,11 @@
     "url": "https://github.com/alvinberthelot/xtreme-game-dev-client/issues"
   },
   "devDependencies": {
-    "clean-webpack-plugin": "3.0.0",
-    "css-loader": "3.5.2",
-    "dotenv-webpack": "1.7.0",
-    "express": "4.17.1",
-    "file-loader": "6.0.0",
-    "html-webpack-plugin": "4.2.0",
-    "postcss-loader": "3.0.0",
-    "style-loader": "1.1.3",
-    "webpack": "4.42.1",
-    "webpack-cli": "3.3.11",
-    "webpack-dev-middleware": "3.7.2",
-    "webpack-dev-server": "3.10.3",
-    "webpack-merge": "4.2.2"
+    "@11ty/eleventy": "0.10.0",
+    "cross-env": "7.0.2",
+    "html-minifier": "4.0.0",
+    "npm-run-all": "4.1.5",
+    "postcss-cli": "7.1.1"
   },
   "dependencies": {
     "chart.js": "2.9.3",
