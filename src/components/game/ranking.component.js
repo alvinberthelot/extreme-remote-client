@@ -2,15 +2,15 @@ import { html } from "lit-html"
 import { styleMap } from "lit-html/directives/style-map.js"
 import hexToRgba from "hex-to-rgba"
 
-export default function rankingComponent(team) {
+export default function rankingComponent(score) {
   const colorStyle = {
-    color: team.color,
+    color: score.color,
   }
   const bgStyle = {
-    background: hexToRgba(team.color, 0.1),
+    background: hexToRgba(score.color, 0.1),
   }
   const borderStyle = {
-    "border-left": `3px solid ${team.color}`,
+    "border-left": `3px solid ${score.color}`,
   }
 
   return html`
@@ -20,7 +20,7 @@ export default function rankingComponent(team) {
         class="text-right text-gray-500 bg-gray-100 rounded-l-lg pr-2 py-1"
         style="width: 2rem"
       >
-        ${team.rank + 1}
+        ${score.rank + 1}
       </div>
       <div
         class="flex-grow py-1 pl-4"
@@ -30,7 +30,7 @@ export default function rankingComponent(team) {
           ...borderStyle,
         })}
       >
-        ${team.name}
+        ${score.name}
       </div>
       <div
         class="text-right text-gray-900 pr-2 py-1"
@@ -41,7 +41,7 @@ export default function rankingComponent(team) {
             ...colorStyle,
           })}
           >$ </span
-        >${team.score}
+        >${score.score}
       </div>
     </div>
   `

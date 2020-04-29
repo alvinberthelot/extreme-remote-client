@@ -1,11 +1,16 @@
 import { html } from "lit-html"
 import * as moment from "moment"
+import { find } from "lodash"
 import printMe from "../../tools/print"
 
-export default function headerComponent(game, lastStep) {
-  const lastStepTeam = lastStep.teams.filter(
-    (team) => team.id === game.teamId
-  )[0]
+export default function headerComponent(game) {
+  const steps = game.steps
+  const lastStep = steps[steps.length - 1]
+
+  const lastStepTeam = find(
+    lastStep.scores,
+    (score) => score.teamId === game.teamId
+  )
 
   return html`
     <div class="flex mb-4">

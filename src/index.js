@@ -2,17 +2,8 @@ import "./style.css"
 import { html, render } from "lit-html"
 import { timer, combineLatest } from "rxjs"
 import { fromFetch } from "rxjs/fetch"
-import {
-  map,
-  tap,
-  scan,
-  flatMap,
-  switchMap,
-  filter,
-  takeWhile,
-} from "rxjs/operators"
+import { map, tap, flatMap, switchMap, filter, takeWhile } from "rxjs/operators"
 import * as moment from "moment"
-import { sortBy, random } from "lodash"
 import appComponent from "./components/app"
 
 const SECOND = 1000
@@ -62,54 +53,27 @@ const game$ = combineLatest([gameId$, metronome$]).pipe(
     datePause: game.datePause ? moment(game.datePause) : null,
     dateStop: game.dateStop ? moment(game.dateStop) : null,
     teamId: process.env.TEAM_ID,
+    steps: game.steps.map((step) => {
+      return {
+        ...step,
+        scores: step.scores.map((score) => {
+          const team = game.teams[score.teamId]
+          return {
+            ...score,
+            ...team,
+          }
+        }),
+      }
+    }),
   })),
   takeWhile((game) => game.isStopped === false, true),
-  tap((game) => {
-    console.log("Game", game.isStarted, game.isStopped)
-  }),
+  // tap((game) => {
+  //   console.log("Game", game.isStarted, game.isStopped)
+  // }),
   filter((game) => game.isStarted === true)
 )
 
-const states$ = game$.pipe(
-  map((game, index) => {
-    const teams = game.teams
-    const scores = Object.keys(teams).map((id) => ({
-      id,
-      score: random(100),
-    }))
-
-    const scoresSorted = sortBy(scores, [
-      function (v) {
-        return v.score
-      },
-    ]).reverse()
-
-    return {
-      game,
-      step: {
-        id: Math.random()
-          .toString(36)
-          .replace(/[^a-z]+/g, "")
-          .substr(0, 7),
-        index,
-        date: moment(),
-        teams: scoresSorted.map((v, index) => {
-          const team = teams[v.id]
-          return { ...v, ...team, rank: index }
-        }),
-      },
-    }
-  }),
-  scan(
-    (acc, v) => ({
-      game: v.game,
-      steps: [...acc.steps, v.step],
-    }),
-    { steps: [] }
-  )
-)
-
-states$.subscribe((state) => {
-  // console.log("state", state)
-  render(html`${appComponent(state.game, state.steps)}`, document.body)
+game$.subscribe((game) => {
+  console.log("game", game)
+  render(html`${appComponent(game)}`, document.body)
 })

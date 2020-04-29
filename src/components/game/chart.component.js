@@ -1,5 +1,6 @@
 import { html } from "lit-html"
 import { Chart } from "chart.js"
+import { find } from "lodash"
 
 export default function chartComponent(game, steps) {
   let canvasChart = document.getElementById("canvasChart")
@@ -13,9 +14,10 @@ export default function chartComponent(game, steps) {
       const lastStep = steps[steps.length - 1]
       chart.data.labels.push(lastStep.index)
       chart.data.datasets.forEach((dataset) => {
-        const team = lastStep.teams.filter(
+        const team = find(
+          lastStep.scores,
           (team) => team.name === dataset.label
-        )[0]
+        )
         if (team) {
           dataset.data.push(team.score)
         }
@@ -24,15 +26,19 @@ export default function chartComponent(game, steps) {
     } else {
       const data = {
         labels: steps.map((step) => step.index),
-        datasets: Object.keys(game.teams).map((key) => {
-          const team = game.teams[key]
+        datasets: Object.keys(game.teams).map((teamId) => {
+          const team = game.teams[teamId]
           return {
             label: team.name,
             backgroundColor: team.color,
             borderColor: team.color,
-            data: steps.map(
-              (step) => step.teams.filter((v) => v.id === key)[0].score
-            ),
+            data: steps.map((step) => {
+              const scoreTeam = find(
+                step.scores,
+                (score) => score.teamId === teamId
+              )
+              return scoreTeam ? scoreTeam.score : 0
+            }),
             fill: false,
           }
         }),

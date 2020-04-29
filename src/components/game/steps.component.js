@@ -1,5 +1,6 @@
 import { html } from "lit-html"
 import { repeat } from "lit-html/directives/repeat"
+import * as moment from "moment"
 
 export default function stepsComponent(steps) {
   return html`
@@ -13,7 +14,7 @@ export default function stepsComponent(steps) {
               steps,
               (step) => step.id,
               (step, index) => html` <li>
-                ${index}: ${step.date.format("LTS")}
+                ${index}: ${moment(step.date).format("LTS")}
               </li>`
             )}
           </ul>

@@ -4,7 +4,8 @@ import rankingListComponent from "./ranking-list.component"
 import chartComponent from "./chart.component"
 import stepsComponent from "./steps.component"
 
-export default function mainComponent(game, steps) {
+export default function mainComponent(game) {
+  const steps = game.steps
   const lastStep = steps[steps.length - 1]
   return html`
     <main class="bg-white rounded shadow-2xl">
