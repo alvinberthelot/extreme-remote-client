@@ -85,9 +85,8 @@ const game$ = combineLatest([gameId$, metronome$]).pipe(
 combineLatest([game$, myTeam$])
   .pipe(
     tap(([game, myTeam]) => {
-      // console.log("Game", game.isStarted, game.isStopped)
-      console.log("Game", game)
-      console.log("MyTeam", myTeam)
+      // console.log("Game", game)
+      // console.log("MyTeam", myTeam)
     })
   )
   .subscribe(([game, myTeam]) => {
@@ -202,11 +201,11 @@ const renderGameHeader = (myTeam, lastStepTeam) => {
   return `
     <div class="flex mb-4">
       <div class="w-1/4 py-4">
-        <div class="text-base text-gray-400 font-bold uppercase pt-4" @{printMe}">
-        <a href="" class="ml-2 text-gray-500">Game</a>
+        <div class="text-base text-gray-400 font-bold uppercase pt-4">
+        <a href="" class="text-gray-500">Game</a>
       </div>
       <div class="text-base text-gray-400 font-bold uppercase">
-        <a href="" class="ml-2 text-gray-500">Code</a>
+        <a href="" class="text-gray-500">Code</a>
       </div>
     </div>
       <div class="w-1/2 bg-gray-900 shadow-lg rounded-b p-4 flex">
@@ -257,14 +256,15 @@ const renderGameScores = (myTeam, scores) => {
 }
 
 const renderRanking = (myTeam, score) => {
+  const color = myTeam ? myTeam.color : "#FF0000"
   const colorStyle = {
-    color: myTeam.color,
+    color: color,
   }
   const bgStyle = {
-    background: `hexToRgba(${myTeam.color}, 0.1)`,
+    background: `hexToRgba(${color}, 0.1)`,
   }
   const borderStyle = {
-    "border-left": `3px solid ${myTeam.color}`,
+    "border-left": `3px solid ${color}`,
   }
   const teamStyle = {
     ...bgStyle,
