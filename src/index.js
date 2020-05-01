@@ -1,6 +1,14 @@
 const { timer, combineLatest } = rxjs
 const { fromFetch } = rxjs.fetch
-const { map, tap, flatMap, switchMap, filter, takeWhile } = rxjs.operators
+const {
+  map,
+  tap,
+  flatMap,
+  switchMap,
+  filter,
+  takeWhile,
+  share,
+} = rxjs.operators
 
 const SERVER = `https://www.xtreme-game.io`
 // const SERVER = `http://localhost:8080`
@@ -66,7 +74,8 @@ const game$ = combineLatest([gameId$, metronome$]).pipe(
 
 const steps$ = combineLatest([gameId$, metronome$]).pipe(
   switchMap(([id]) => fromFetch(`${SERVER}/game/${id}/step`)),
-  flatMap((response) => response.json())
+  flatMap((response) => response.json()),
+  share()
 )
 
 const lastStep$ = steps$.pipe(
