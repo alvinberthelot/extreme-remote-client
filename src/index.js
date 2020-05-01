@@ -3,6 +3,7 @@ const { fromFetch } = rxjs.fetch
 const { map, tap, flatMap, switchMap, filter, takeWhile } = rxjs.operators
 
 const SERVER = `https://www.xtreme-game.io`
+// const SERVER = `http://localhost:8080`
 const GAME_ID = null
 const TEAM_ID = null
 
@@ -31,7 +32,7 @@ const gameId$ = fromFetch(`${SERVER}/game`).pipe(
 )
 
 const myTeam$ = gameId$.pipe(
-  switchMap((id) => fromFetch(`${SERVER}/game/${id}/myteam`)),
+  switchMap((id) => fromFetch(`${SERVER}/game/${id}/me`)),
   flatMap((response) => response.json()),
   map((data) => data.team)
 )
@@ -59,68 +60,43 @@ register$.subscribe(
 const game$ = combineLatest([gameId$, metronome$]).pipe(
   switchMap(([id]) => fromFetch(`${SERVER}/game/${id}`)),
   flatMap((response) => response.json()),
-  map((game, index) => ({
-    ...game,
-    // dateStart: game.dateStart ? moment(game.dateStart) : null,
-    // datePause: game.datePause ? moment(game.datePause) : null,
-    // dateStop: game.dateStop ? moment(game.dateStop) : null,
-    teamId: TEAM_ID,
-    steps: game.steps.map((step) => {
-      return {
-        ...step,
-        scores: step.scores.map((score) => {
-          const team = game.teams[score.teamId]
-          return {
-            ...score,
-            ...team,
-          }
-        }),
-      }
-    }),
-  })),
   takeWhile((game) => game.isStopped === false, true),
   filter((game) => game.isStarted === true)
 )
 
-combineLatest([game$, myTeam$])
-  .pipe(
-    tap(([game, myTeam]) => {
-      // console.log("Game", game)
-      // console.log("MyTeam", myTeam)
-    })
-  )
-  .subscribe(([game, myTeam]) => {
-    renderGame({ game, myTeam })
-  })
+const steps$ = combineLatest([gameId$, metronome$]).pipe(
+  switchMap(([id]) => fromFetch(`${SERVER}/game/${id}/step`)),
+  flatMap((response) => response.json())
+)
 
-const renderGame = ({ game, myTeam }) => {
-  const { steps, teams } = game
-  const lastStep = steps[steps.length - 1]
-  const scores = lastStep.scores
-  const scoreTeam = find(
-    lastStep.scores,
-    (score) => myTeam && myTeam.id === score.teamId
-  )
-  render("game-header", renderGameHeader(scoreTeam))
-  render("game-scores", renderGameScores(myTeam, scores))
-  render("game-jobs", renderGameJobs())
-  renderGameChart("game-chart", game)
-}
+const lastStep$ = steps$.pipe(
+  filter((steps) => steps.length > 0),
+  map((steps) => {
+    return steps[steps.length - 1]
+  })
+)
+
+const lastScores$ = lastStep$.pipe(
+  map((step) => {
+    return step.scores
+  })
+)
+
+const teams$ = gameId$.pipe(
+  switchMap((id) => fromFetch(`${SERVER}/game/${id}/team`)),
+  flatMap((response) => response.json())
+)
 
 const render = (selector, html) => {
   const element = document.getElementById(selector)
   element.innerHTML = html
 }
 
-const renderGameChart = (selector, game) => {
-  const steps = game.steps
+const renderStepsChart = (selector, teams, steps) => {
   let canvasChart = document.getElementById(selector)
-
   if (canvasChart) {
     var ctx = document.getElementById(selector).getContext("2d")
-
     const chart = window.chart
-
     if (chart) {
       const lastStep = steps[steps.length - 1]
       chart.data.labels.push(lastStep.index)
@@ -137,8 +113,7 @@ const renderGameChart = (selector, game) => {
     } else {
       const data = {
         labels: steps.map((step) => step.index),
-        datasets: Object.keys(game.teams).map((teamId) => {
-          const team = game.teams[teamId]
+        datasets: teams.map((team) => {
           return {
             label: team.name,
             backgroundColor: team.color,
@@ -146,7 +121,7 @@ const renderGameChart = (selector, game) => {
             data: steps.map((step) => {
               const scoreTeam = find(
                 step.scores,
-                (score) => score.teamId === teamId
+                (score) => score.teamId === team.id
               )
               return scoreTeam ? scoreTeam.score : 0
             }),
@@ -154,7 +129,6 @@ const renderGameChart = (selector, game) => {
           }
         }),
       }
-
       const config = {
         type: "line",
         data,
@@ -180,7 +154,6 @@ const renderGameChart = (selector, game) => {
           },
         },
       }
-
       window.chart = new Chart(ctx, config)
     }
   }
@@ -197,7 +170,7 @@ const renderErrorHeader = (message) => {
   `
 }
 
-const renderGameHeader = (myTeam, lastStepTeam) => {
+const renderGameHeader = (team, score) => {
   return `
     <div class="flex mb-4">
       <div class="w-1/4 py-4">
@@ -214,22 +187,18 @@ const renderGameHeader = (myTeam, lastStepTeam) => {
             Score
         </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700 mr-1">$</span>${
-              lastStepTeam ? lastStepTeam.score : 0
-            }
+            <span class="text-gray-700 mr-1">$</span>${score ? score.score : 0}
           </div>
         </div>
         <div class="w-1/2 text-center text-gray-100 font-bold pt-4">
-          ${myTeam ? myTeam.name : ""}
+          ${team ? team.name : ""}
         </div>
         <div class="w-1/4 text-right">
           <div class="text-base text-gray-700 font-bold uppercase pt-4">
             Rank
         </div>
           <div class="text-4xl text-gray-100 font-bold">
-            <span class="text-gray-700 mr-1">#</span>${
-              lastStepTeam ? lastStepTeam.rank : "?"
-            }
+            <span class="text-gray-700 mr-1">#</span>${score ? score.rank : "?"}
           </div>
         </div>
       </div>
@@ -249,14 +218,17 @@ const renderGameJobs = () => {
   return `JOBS`
 }
 
-const renderGameScores = (myTeam, scores) => {
+const renderGameScores = (scores, teams) => {
   return `<ul>${scores
-    .map((score) => `<li>${renderRanking(myTeam, score)}</li>`)
+    .map((score) => {
+      const team = find(teams, (team) => team.id === score.teamId)
+      return `<li>${renderRanking(team, score)}</li>`
+    })
     .join("")}</ul>`
 }
 
-const renderRanking = (myTeam, score) => {
-  const color = myTeam ? myTeam.color : "#FF0000"
+const renderRanking = (team, score) => {
+  const color = team ? team.color : "#FF0000"
   const colorStyle = {
     color: color,
   }
@@ -274,10 +246,10 @@ const renderRanking = (myTeam, score) => {
     <div class="font-bold fontsize-lg flex mb-1 w-full bg-gray-100 rounded-l-lg">
       <!-- <span class="text-gray-300 mr-1">#</span> -->
       <div class="text-right text-gray-500 rounded-l-lg pr-2 py-1" style="width: 2rem">
-        ${score.rank + 1}
+        ${score.rank}
       </div>
       <div class="flex-grow py-1 pl-4" style="${styleMap(teamStyle)}">
-        ${score.name}
+        ${team ? team.name : ""}
       </div>
       <div class="text-right text-gray-900 pr-2 py-1" style="${styleMap(
         bgStyle
@@ -300,3 +272,24 @@ const styleMap = (properties) => {
 
 const mapPropertyStyle = (propertyKey, propertyValue) =>
   `${propertyKey}: ${propertyValue}`
+
+combineLatest([teams$, steps$]).subscribe(([teams, steps]) =>
+  renderStepsChart("game-chart", teams, steps)
+)
+
+combineLatest([lastScores$, myTeam$])
+  .pipe(
+    map(([scores, myTeam]) => {
+      const score = find(
+        scores,
+        (score) => myTeam && myTeam.id === score.teamId
+      )
+      return { score, team: myTeam }
+    })
+  )
+  .subscribe(({ score, team }) =>
+    render("game-header", renderGameHeader(team, score))
+  )
+combineLatest([lastScores$, teams$]).subscribe(([scores, teams]) =>
+  render("game-scores", renderGameScores(scores, teams))
+)
