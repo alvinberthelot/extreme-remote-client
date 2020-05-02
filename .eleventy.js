@@ -6,7 +6,6 @@ module.exports = function (eleventyConfig) {
       require("./src/utils/minify-html.js")
     )
   }
-  // eleventyConfig.setTemplateFormats(["njk", "11ty.js"])
   eleventyConfig.addPassthroughCopy("src/robots.txt")
-  eleventyConfig.addPassthroughCopy("src/*.js")
+  eleventyConfig.addPassthroughCopy("game")
 }
