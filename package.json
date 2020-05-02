@@ -6,13 +6,12 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "npm-run-all --parallel watch:html watch:css",
-    "watch:html": "cross-env ELEVENTY_ENV=dev eleventy --serve --input=./src --output=./dist",
-    "watch:js": "webpack --config webpack.dev.js",
-    "watch:css": "postcss ./src/styles/tailwind.css -o ./dist/index.css --watch",
-    "build": "npm-run-all clean build:html build:css",
-    "build:html": "cross-env ELEVENTY_ENV=prod eleventy --input=./src --output=./dist",
-    "build:js": "webpack --config webpack.prod.js",
-    "build:css": "postcss ./src/styles/tailwind.css -o ./dist/index.css",
+    "watch:html": "cross-env ELEVENTY_ENV=dev eleventy --serve --input=./website --output=./dist",
+    "watch:css": "postcss ./website/styles/tailwind.css -o ./dist/index.css --watch",
+    "build": "npm-run-all clean build:website",
+    "build:website": "npm-run-all build:html build:css",
+    "build:html": "cross-env ELEVENTY_ENV=prod eleventy --input=./website --output=./dist",
+    "build:css": "postcss --config ./website ./website/styles/tailwind.css -o ./dist/index.css",
     "clean": "rm -rf dist"
   },
   "repository": {

@@ -3,9 +3,10 @@ module.exports = function (eleventyConfig) {
   if (process.env.NODE_ENV == "production") {
     eleventyConfig.addTransform(
       "htmlmin",
-      require("./src/utils/minify-html.js")
+      require("./website/utils/minify-html.js")
     )
   }
-  eleventyConfig.addPassthroughCopy("src/robots.txt")
-  eleventyConfig.addPassthroughCopy("game")
+  eleventyConfig.addPassthroughCopy("./website/robots.txt")
+  eleventyConfig.addPassthroughCopy("./website/game")
+  eleventyConfig.addPassthroughCopy("./src")
 }
