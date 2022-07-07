@@ -44,7 +44,7 @@
     "hex-to-rgba": "2.0.1",
     "lit-html": "1.2.1",
     "lodash": "4.17.15",
-    "moment": "2.24.0",
+    "moment": "2.29.4",
     "rxjs": "6.5.5",
     "tailwindcss": "1.2.0"
   }
